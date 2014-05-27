@@ -56,7 +56,7 @@ exports.operators = {
 	out: filter(function(value, values){
 		return values.indexOf(value) == -1;
 	}),
-	contains: filter(function(array, value){
+	any: filter(function(array, value){
 		if(typeof value == "function"){
 			return array instanceof Array && array.some(function(v){
 				return value.call([v]).length;
@@ -65,6 +65,17 @@ exports.operators = {
 		else{
 			return array instanceof Array && array.indexOf(value) > -1;
 		}
+	}),
+	all: filter(function(array, value){
+		var filter = typeof value == "function" ?
+			function(v){
+				return value.call([v]).length;
+			} :
+			function(v){
+				return v === value;
+			};
+
+		return array instanceof Array && array.every(filter);
 	}),
 	excludes: filter(function(array, value){
 		if(typeof value == "function"){
@@ -286,6 +297,10 @@ exports.operators = {
 		return this[0];
 	}
 };
+
+// alias any as contains for backwards compat
+exports.operators.contains = exports.operators.any;
+
 exports.filter = filter;
 function filter(condition, not){
 	// convert to boolean right now
